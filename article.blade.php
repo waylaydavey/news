@@ -146,45 +146,80 @@
                              <div class="news-desc mb-20">
     <p>
         @if (isset($postDetail->postArticle->article_content))
-            @php
-                // Get the article content
-                $articleContent = $postDetail->postArticle->article_content;
+           @php
 
-                // Explode the content by the first <br>
-                $parts = explode('<br>', $articleContent, 2);
-            @endphp
+    // Get the article content
 
-            {!! $parts[0] !!}  <!-- First part of the article -->
+    $articleContent = $postDetail->postArticle->article_content;
 
-            @if (!empty($nextPost))
-                <div style="display: inline-block; vertical-align: top;">
-                    <div class="card d-flex flex-row mb-40">
-                        <div class="col-4 card-img-top ">
-                            <a href="{{ route('detailPage', $nextPost->slug) }}">
-                                <img src="{{ $nextPost->post_image }}" height="100" width="100">
-                            </a>
-                        </div>
-                        <div class="col-8 ms-4 ">
-                            <h5 class="card-title fs-14 fw-6 text-black">
-                                <a href="{{ route('detailPage', $nextPost->slug) }}" class="fs-14 fw-6 text-black position-relative">
-                                    {!! \Illuminate\Support\Str::limit($nextPost['title'], 40, '...') !!}
-                                </a>
-                            </h5>
-                            <span class=" fs-14 text-gray">
-                                {{ ucfirst(__('messages.common.' . strtolower($nextPost['created_at']->format('M')))) }}
-                                {{ $nextPost['created_at']->format('d, Y') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            @endif
 
-            <br> <!-- Add a <br> to separate the content -->
+    // Split the content at the first <br>
 
-            @if (isset($parts[1]))
-                {!! $parts[1] !!}  <!-- Second part of the article if it exists -->
-            @endif
-        @endif
+    preg_match('/^(.*)<br>/', $articleContent, $match);
+
+
+    if (isset($match[1])) {
+
+        $firstPart = $match[1];
+
+        $secondPart = str_replace($firstPart . '<br>', '', $articleContent);
+
+    } else {
+
+        $firstPart = $articleContent;
+
+        $secondPart = '';
+
+    }
+
+@endphp
+
+
+{!! $firstPart !!}  <!-- First part of the article -->
+
+
+@if (!empty($nextPost))
+
+    <div class="card d-flex flex-row mb-40">
+
+        <div class="col-4 card-img-top ">
+
+            <a href="{{ route('detailPage', $nextPost->slug) }}">
+
+                <img src="{{ $nextPost->post_image }}" height="100" width="100">
+
+            </a>
+
+        </div>
+
+        <div class="col-8 ms-4 ">
+
+            <h5 class="card-title fs-14 fw-6 text-black">
+
+                <a href="{{ route('detailPage', $nextPost->slug) }}" class="fs-14 fw-6 text-black position-relative">
+
+                    {!! \Illuminate\Support\Str::limit($nextPost['title'], 40, '...') !!}
+
+                </a>
+
+            </h5>
+
+            <span class=" fs-14 text-gray">
+
+                {{ ucfirst(__('messages.common.' . strtolower($nextPost['created_at']->format('M')))) }}
+
+                {{ $nextPost['created_at']->format('d, Y') }}
+
+            </span>
+
+        </div>
+
+    </div>
+
+@endif
+
+
+{!! $secondPart !!}  <!-- Second part of the article -->
     </p>
 </div>
                                 @if ($postDetail->additional_image)
