@@ -142,87 +142,55 @@
                                     </div>
                                     <a href="#" class="tags position-absolute">{{ $postDetail->category->name }}</a>
                                 </div>
-                                <!--article content-->
-                             <div class="news-desc mb-20">
+                               <!--article content-->
+<div class="news-desc mb-20">
     <p>
         @if (isset($postDetail->postArticle->article_content))
-           @php
+            @php
+                // Get the article content
+                $articleContent = $postDetail->postArticle->article_content;
 
-    // Get the article content
+                // Explode the content by the first <br>
+                $parts = explode('<br>', $articleContent, 2);
+            @endphp
 
-    $articleContent = $postDetail->postArticle->article_content;
+            {!! $parts[0] !!}  <!-- First part of the article -->
 
+            <br> <!-- Add a <br> to separate the content -->
 
-    // Split the content at the first <br>
+            <!-- Debugging output to check if nextPost is available -->
+            @if (!empty($nextPost))
+                <div style="display: inline-block; vertical-align: top; margin-top: 10px;">
+                    <div class="card d-flex flex-row mb-40">
+                        <div class="col-4 card-img-top ">
+                            <a href="{{ route('detailPage', $nextPost->slug) }}">
+                                <img src="{{ $nextPost->post_image }}" height="100" width="100">
+                            </a>
+                        </div>
+                        <div class="col-8 ms-4 ">
+                            <h5 class="card-title fs-14 fw-6 text-black">
+                                <a href="{{ route('detailPage', $nextPost->slug) }}" class="fs-14 fw-6 text-black position-relative">
+                                    {!! \Illuminate\Support\Str::limit($nextPost['title'], 40, '...') !!}
+                                </a>
+                            </h5>
+                            <span class=" fs-14 text-gray">
+                                {{ ucfirst(__('messages.common.' . strtolower($nextPost['created_at']->format('M')))) }}
+                                {{ $nextPost['created_at']->format('d, Y') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <p style="color: red;">Next post is not available.</p> <!-- Debugging message -->
+            @endif
 
-    preg_match('/^(.*)<br>/', $articleContent, $match);
-
-
-    if (isset($match[1])) {
-
-        $firstPart = $match[1];
-
-        $secondPart = str_replace($firstPart . '<br>', '', $articleContent);
-
-    } else {
-
-        $firstPart = $articleContent;
-
-        $secondPart = '';
-
-    }
-
-@endphp
-
-
-{!! $firstPart !!}  <!-- First part of the article -->
-
-
-@if (!empty($nextPost))
-
-    <div class="card d-flex flex-row mb-40">
-
-        <div class="col-4 card-img-top ">
-
-            <a href="{{ route('detailPage', $nextPost->slug) }}">
-
-                <img src="{{ $nextPost->post_image }}" height="100" width="100">
-
-            </a>
-
-        </div>
-
-        <div class="col-8 ms-4 ">
-
-            <h5 class="card-title fs-14 fw-6 text-black">
-
-                <a href="{{ route('detailPage', $nextPost->slug) }}" class="fs-14 fw-6 text-black position-relative">
-
-                    {!! \Illuminate\Support\Str::limit($nextPost['title'], 40, '...') !!}
-
-                </a>
-
-            </h5>
-
-            <span class=" fs-14 text-gray">
-
-                {{ ucfirst(__('messages.common.' . strtolower($nextPost['created_at']->format('M')))) }}
-
-                {{ $nextPost['created_at']->format('d, Y') }}
-
-            </span>
-
-        </div>
-
-    </div>
-
-@endif
-
-
-{!! $secondPart !!}  <!-- Second part of the article -->
+            @if (isset($parts[1]))
+                {!! $parts[1] !!}  <!-- Second part of the article if it exists -->
+            @endif
+        @endif
     </p>
 </div>
-                                @if ($postDetail->additional_image)
+               @if ($postDetail->additional_image)
                                     <div class="mt-4">
                                         <div class="row">
                                             <div class="col-xl-12 col-lg-12">
