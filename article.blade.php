@@ -144,52 +144,57 @@
                                 </div>
                                <!--article content-->
 <div class="news-desc mb-20">
-    <p>
-        @if (isset($postDetail->postArticle->article_content))
-            @php
-                // Get the article content
-                $articleContent = $postDetail->postArticle->article_content;
+    @if (isset($postDetail->postArticle->article_content))
+        @php
+            // Get the article content
+            $articleContent = $postDetail->postArticle->article_content;
 
-                // Explode the content by the first <br>
-                $parts = explode('<br>', $articleContent, 2);
-            @endphp
+            // Split content by the first occurrence of <br>
+            $parts = preg_split('/(<br\s*\/?>)/i', $articleContent, 2);
+            
+            // The first part (before the first <br>)
+            $firstPart = $parts[0] ?? '';
+            
+            // The remaining part (after the first <br>)
+            $remainingPart = isset($parts[1]) ? $parts[1] : '';
+        @endphp
 
-            {!! $parts[0] !!}  <!-- First part of the article -->
+        <!-- Display the first part of the article -->
+        {!! $firstPart !!}
 
-            <br> <!-- Add a <br> to separate the content -->
+        <!-- Add a line break to separate the first part from the "Next Post" section -->
+        <br>
 
-            <!-- Debugging output to check if nextPost is available -->
-            @if (!empty($nextPost))
-                <div style="display: inline-block; vertical-align: top; margin-top: 10px;">
-                    <div class="card d-flex flex-row mb-40">
-                        <div class="col-4 card-img-top ">
-                            <a href="{{ route('detailPage', $nextPost->slug) }}">
-                                <img src="{{ $nextPost->post_image }}" height="100" width="100">
+        <!-- Display "Next Post" section inline after the first <br> -->
+        @if (!empty($nextPost))
+            <div class="related-posts mt-3">
+                <h5 class="mb-3">Baca Juga</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <div class="d-flex">
+                            <a href="{{ route('detailPage', $nextPost->slug) }}" class="me-3">
+                                <img src="{{ $nextPost->post_image }}" height="60" width="60" class="img-fluid rounded" alt="Next Post Image">
                             </a>
+                            <div>
+                                <h6 class="card-title fs-14 fw-6 text-black">
+                                    <a href="{{ route('detailPage', $nextPost->slug) }}" class="text-black">{{ \Illuminate\Support\Str::limit($nextPost->title, 50, '...') }}</a>
+                                </h6>
+                                <span class="fs-12 text-gray">
+                                    {{ ucfirst(__('messages.common.' . strtolower($nextPost->created_at->format('M')))) }}
+                                    {{ $nextPost->created_at->format('d, Y') }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="col-8 ms-4 ">
-                            <h5 class="card-title fs-14 fw-6 text-black">
-                                <a href="{{ route('detailPage', $nextPost->slug) }}" class="fs-14 fw-6 text-black position-relative">
-                                    {!! \Illuminate\Support\Str::limit($nextPost['title'], 40, '...') !!}
-                                </a>
-                            </h5>
-                            <span class=" fs-14 text-gray">
-                                {{ ucfirst(__('messages.common.' . strtolower($nextPost['created_at']->format('M')))) }}
-                                {{ $nextPost['created_at']->format('d, Y') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            @else
-                <p style="color: red;">Next post is not available.</p> <!-- Debugging message -->
-            @endif
-
-            @if (isset($parts[1]))
-                {!! $parts[1] !!}  <!-- Second part of the article if it exists -->
-            @endif
+                    </li>
+                </ul>
+            </div>
         @endif
-    </p>
+
+        <!-- Continue displaying the remaining part of the article content -->
+        {!! $remainingPart !!}
+    @endif
 </div>
+
                @if ($postDetail->additional_image)
                                     <div class="mt-4">
                                         <div class="row">
