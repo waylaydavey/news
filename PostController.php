@@ -128,6 +128,26 @@ class PostController extends AppBaseController
             return redirect(route('customer-posts.index'));
         }
     }
+    
+public function show($id)
+{
+    // Fetch the current post detail, including the article
+    $postDetail = Post::with('postArticle')->findOrFail($id);
+
+    // Fetch the next post based on the current post ID
+    $nextPost = Post::where('id', '>', $postDetail->id)
+        ->orderBy('id')
+        ->first();
+
+    // If there's no next post, you can decide to set it to null or to some default post.
+    // For example, to get the first post:
+    if (!$nextPost) {
+        $nextPost = Post::orderBy('id')->first(); // Adjust as necessary for your logic
+    }
+
+    // Return the view with the post detail and next post
+    return view('article', compact('postDetail', 'nextPost'));
+}
 
     public function show($id): \Illuminate\View\View
     {
